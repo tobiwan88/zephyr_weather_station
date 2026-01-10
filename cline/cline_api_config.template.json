@@ -1,0 +1,11 @@
+{
+  "apiProvider": "openrouter",
+  "openRouterApiKey": "",
+  "openRouterModelId": "qwen/qwen-2.5-72b-instruct",
+  "openRouterModelInfo": {
+    "maxTokens": 32768,
+    "contextWindow": 131072,
+    "supportsImages": true,
+    "supportsPromptCache": true
+  }
+}

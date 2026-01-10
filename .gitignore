@@ -42,3 +42,14 @@ yarn-error.log*
 
 # Test results
 twister-out/
+
+# Cline sensitive files - NEVER commit API keys
+cline/cline_api_config.json
+**/cline_api_config.json
+*.key
+*.secret
+.env
+.env.*
+*_api_key*
+*_secret*
+

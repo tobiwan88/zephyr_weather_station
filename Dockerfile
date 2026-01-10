@@ -1,8 +1,8 @@
 FROM ghcr.io/tobiwan88/zephyr_docker:arm
 
-# Install Node.js and npm
+# Install Node.js, npm, and jq for JSON processing
 RUN apt-get update && \
-    apt-get install -y curl && \
+    apt-get install -y curl jq && \
     curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs && \
     rm -rf /var/lib/apt/lists/*
@@ -21,3 +21,12 @@ ENV CLINE_DIR=/cline
 
 # Create cline directory
 RUN mkdir -p /cline
+
+# Copy cline setup script
+COPY cline/setup_cline.sh /usr/local/bin/setup_cline.sh
+RUN chmod +x /usr/local/bin/setup_cline.sh
+
+# Run setup script on container start
+# Note: OPENROUTER_API_KEY should be provided as environment variable when running container
+CMD ["/bin/bash", "-c", "/usr/local/bin/setup_cline.sh && exec /bin/bash"]
+

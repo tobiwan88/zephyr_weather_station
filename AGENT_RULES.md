@@ -130,9 +130,54 @@ git log -1 --oneline
 
 ### 5. Security
 
-- Never commit secrets or credentials
+- **Never commit secrets or credentials**
+  - API keys, tokens, and secrets must NEVER be committed to the repository
+  - Use environment variables for sensitive data
+  - The `.gitignore` is configured to block common secret files
 - Follow secure coding practices
 - Be cautious with external dependencies
+
+## Cline AI Assistant Setup
+
+This project is configured to work with the Cline AI assistant using OpenRouter API with Qwen 2.5 72B model.
+
+### Configuration Files
+
+- **cline/cline_api_config.template.json**: Template configuration (safe to commit)
+- **cline/cline_api_config.json**: Active configuration with API key (NEVER commit, auto-generated)
+- **cline/cline_mcp_settings.json**: MCP server settings
+- **cline/setup_cline.sh**: Automatic setup script
+
+### Security Model
+
+1. **Template-based configuration**: The `cline_api_config.template.json` contains all settings except the API key
+2. **Runtime injection**: API key is provided via `OPENROUTER_API_KEY` environment variable when starting the container
+3. **Auto-generation**: The setup script creates `cline_api_config.json` from the template and injects the API key
+4. **Git protection**: `.gitignore` blocks `cline_api_config.json` and other secret files from being committed
+
+### Usage
+
+```bash
+# Start container with API key
+docker run -it -v $(pwd):/workspace -e OPENROUTER_API_KEY=sk-or-v1-xxx... zephyr_weather_station
+
+# The setup_cline.sh script automatically:
+# 1. Checks for OPENROUTER_API_KEY environment variable
+# 2. Creates /cline/cline_api_config.json with the API key injected
+# 3. Copies MCP settings to /cline/cline_mcp_settings.json
+```
+
+### Changing Models
+
+To use a different OpenRouter model, edit `cline/cline_api_config.template.json`:
+
+```json
+{
+  "openRouterModelId": "qwen/qwen-2.5-72b-instruct"
+}
+```
+
+Available models: https://openrouter.ai/models
 
 ## Workspace Structure
 
@@ -144,12 +189,17 @@ zephyr_weather_station/
 │   └── src/
 │       └── main.c         # Main application
 ├── west.yml               # West manifest
-├── west_mcp_server.py     # MCP server for guarded west access
+├── west_mcp_server.py     # MCP server for guarded west and git access
 ├── cline/
-│   └── cline_mcp_settings.json  # Cline MCP configuration
+│   ├── cline_api_config.template.json  # Cline API config template (safe)
+│   ├── cline_mcp_settings.json         # MCP server configuration
+│   └── setup_cline.sh                  # Setup script for runtime config
 ├── Dockerfile             # Docker development environment
+├── .gitignore             # Excludes secrets and build artifacts
 └── README.md              # Project documentation
 ```
+
+**Note**: `cline/cline_api_config.json` is generated at runtime and never committed.
 
 ## MCP Server Usage
 
