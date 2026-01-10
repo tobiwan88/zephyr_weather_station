@@ -1,0 +1,11 @@
+{
+  "apiProvider": "openrouter",
+  "openRouterApiKey": "",
+  "openRouterModelId": "mistralai/devstral-2512:free",
+  "openRouterModelInfo": {
+    "maxTokens": 32768,
+    "contextWindow": 131072,
+    "supportsImages": true,
+    "supportsPromptCache": true
+  }
+}

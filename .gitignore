@@ -1,0 +1,55 @@
+# Build artifacts
+build/
+build-*/
+*.o
+*.a
+*.so
+*.elf
+*.bin
+*.hex
+
+# Zephyr artifacts
+.cache/
+zephyr/
+bootloader/
+modules/
+tools/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+*.egg-info/
+dist/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Test results
+twister-out/
+
+# Cline sensitive files - NEVER commit API keys
+cline/cline_api_config.json
+**/cline_api_config.json
+*.key
+*.secret
+.env
+.env.*
+*_api_key*
+*_secret*
+

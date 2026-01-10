@@ -1,0 +1,11 @@
+{
+  "apiProvider": "openrouter",
+  "openRouterApiKey": "",
+  "openRouterModelId": "qwen/qwen3-235b-a22b:free",
+  "openRouterModelInfo": {
+    "maxTokens": 32768,
+    "contextWindow": 131072,
+    "supportsImages": true,
+    "supportsPromptCache": true
+  }
+}

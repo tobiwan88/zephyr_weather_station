@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "west-mcp-server": {
+      "command": "python3",
+      "args": ["/workspace/west_mcp_server.py"],
+      "env": {},
+      "disabled": false,
+      "autoApprove": []
+    }
+  }
+}
