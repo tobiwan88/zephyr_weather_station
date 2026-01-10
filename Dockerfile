@@ -28,5 +28,6 @@ RUN chmod +x /usr/local/bin/setup_cline.sh
 
 # Run setup script on container start
 # Note: OPENROUTER_API_KEY should be provided as environment variable when running container
-CMD ["/bin/bash", "-c", "/usr/local/bin/setup_cline.sh && exec /bin/bash"]
+# Optional: CLINE_MODEL can be set to 'qwen' to use Qwen3 instead of default Devstral
+CMD ["/bin/bash", "-c", "/usr/local/bin/setup_cline.sh \"${CLINE_MODEL:-devstral}\" && exec /bin/bash"]
 

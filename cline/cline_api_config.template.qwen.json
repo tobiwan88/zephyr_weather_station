@@ -1,7 +1,7 @@
 {
   "apiProvider": "openrouter",
   "openRouterApiKey": "",
-  "openRouterModelId": "mistralai/devstral-2512:free",
+  "openRouterModelId": "qwen/qwen3-235b-a22b:free",
   "openRouterModelInfo": {
     "maxTokens": 32768,
     "contextWindow": 131072,

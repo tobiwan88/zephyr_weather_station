@@ -139,38 +139,63 @@ git log -1 --oneline
 
 ## Cline AI Assistant Setup
 
-This project is configured to work with the Cline AI assistant using OpenRouter API with Qwen3 235B model (free tier).
+This project is configured to work with the Cline AI assistant using OpenRouter API with two model options:
+
+- **Default**: Mistral Devstral 2512 (free tier) - optimized for development tasks
+- **Alternative**: Qwen3 235B (free tier) - larger general-purpose model
 
 ### Configuration Files
 
-- **cline/cline_api_config.template.json**: Template configuration (safe to commit)
+- **cline/cline_api_config.template.json**: Default Devstral template (safe to commit)
+- **cline/cline_api_config.template.qwen.json**: Qwen3 template (backup option)
 - **cline/cline_api_config.json**: Active configuration with API key (NEVER commit, auto-generated)
 - **cline/cline_mcp_settings.json**: MCP server settings
-- **cline/setup_cline.sh**: Automatic setup script
+- **cline/setup_cline.sh**: Automatic setup script with model selection
 
 ### Security Model
 
-1. **Template-based configuration**: The `cline_api_config.template.json` contains all settings except the API key
+1. **Template-based configuration**: Template files contain all settings except the API key
 2. **Runtime injection**: API key is provided via `OPENROUTER_API_KEY` environment variable when starting the container
-3. **Auto-generation**: The setup script creates `cline_api_config.json` from the template and injects the API key
+3. **Auto-generation**: The setup script creates `cline_api_config.json` from the selected template and injects the API key
 4. **Git protection**: `.gitignore` blocks `cline_api_config.json` and other secret files from being committed
 
 ### Usage
 
 ```bash
-# Start container with API key
+# Start container with default Devstral model
 docker run -it -v $(pwd):/workspace -e OPENROUTER_API_KEY=sk-or-v1-xxx... zephyr_weather_station
 
+# Start container with Qwen3 model
+docker run -it -v $(pwd):/workspace \
+  -e OPENROUTER_API_KEY=sk-or-v1-xxx... \
+  -e CLINE_MODEL=qwen \
+  zephyr_weather_station
+
 # The setup_cline.sh script automatically:
-# 1. Checks for OPENROUTER_API_KEY environment variable
-# 2. Creates /cline/cline_api_config.json with the API key injected
-# 3. Copies MCP settings to /cline/cline_mcp_settings.json
+# 1. Selects model based on CLINE_MODEL environment variable (default: devstral)
+# 2. Checks for OPENROUTER_API_KEY environment variable
+# 3. Creates /cline/cline_api_config.json with the API key injected
+# 4. Copies MCP settings to /cline/cline_mcp_settings.json
 ```
+
+### Model Selection
+
+The setup script accepts model selection via:
+- **Environment variable**: `CLINE_MODEL=qwen` or `CLINE_MODEL=devstral`
+- **Script argument**: `setup_cline.sh qwen` or `setup_cline.sh devstral`
 
 ### Changing Models
 
-To use a different OpenRouter model, edit `cline/cline_api_config.template.json`:
+To add or modify model configurations:
 
+**Default Devstral template** (`cline_api_config.template.json`):
+```json
+{
+  "openRouterModelId": "mistralai/devstral-2512:free"
+}
+```
+
+**Qwen3 template** (`cline_api_config.template.qwen.json`):
 ```json
 {
   "openRouterModelId": "qwen/qwen3-235b-a22b:free"
@@ -191,9 +216,10 @@ zephyr_weather_station/
 ├── west.yml               # West manifest
 ├── west_mcp_server.py     # MCP server for guarded west and git access
 ├── cline/
-│   ├── cline_api_config.template.json  # Cline API config template (safe)
-│   ├── cline_mcp_settings.json         # MCP server configuration
-│   └── setup_cline.sh                  # Setup script for runtime config
+│   ├── cline_api_config.template.json       # Devstral config template (default)
+│   ├── cline_api_config.template.qwen.json  # Qwen3 config template (backup)
+│   ├── cline_mcp_settings.json              # MCP server configuration
+│   └── setup_cline.sh                       # Setup script with model selection
 ├── Dockerfile             # Docker development environment
 ├── .gitignore             # Excludes secrets and build artifacts
 └── README.md              # Project documentation

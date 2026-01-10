@@ -45,10 +45,17 @@ docker build -t zephyr_weather_station .
 
 #### With OpenRouter API Key (for Cline AI assistant)
 
-To use the Cline AI assistant with OpenRouter (Qwen3 model), provide your API key as an environment variable:
+To use the Cline AI assistant with OpenRouter, provide your API key as an environment variable:
 
 ```bash
+# Using default model (Mistral Devstral 2512)
 docker run -it -v $(pwd):/workspace -e OPENROUTER_API_KEY=your_api_key_here zephyr_weather_station
+
+# Using Qwen3 235B model
+docker run -it -v $(pwd):/workspace \
+  -e OPENROUTER_API_KEY=your_api_key_here \
+  -e CLINE_MODEL=qwen \
+  zephyr_weather_station
 ```
 
 **Important**: Never commit your API key to the repository. The key is only passed at runtime via the environment variable.
@@ -75,11 +82,15 @@ west build -t run
 
 ## Cline AI Assistant Configuration
 
-The project is pre-configured to use Cline AI assistant with OpenRouter and the Qwen3 235B model (free tier).
+The project is pre-configured to use Cline AI assistant with OpenRouter. Two model options are available:
+
+- **Default**: Mistral Devstral 2512 (free tier) - optimized for development tasks
+- **Alternative**: Qwen3 235B (free tier) - larger general-purpose model
 
 ### Configuration Files
 
-- `cline/cline_api_config.template.json` - Template configuration (committed to repo, no secrets)
+- `cline/cline_api_config.template.json` - Default Devstral template (committed to repo, no secrets)
+- `cline/cline_api_config.template.qwen.json` - Qwen3 template (backup option)
 - `cline/cline_api_config.json` - Active configuration (generated at runtime, never committed)
 - `cline/cline_mcp_settings.json` - MCP server configuration
 - `cline/setup_cline.sh` - Setup script that runs on container start
@@ -90,10 +101,33 @@ The project is pre-configured to use Cline AI assistant with OpenRouter and the 
 2. Generate an API key from your account settings
 3. Pass it to the Docker container via the `OPENROUTER_API_KEY` environment variable
 
+### Selecting a Model
+
+You can select which model to use via the `CLINE_MODEL` environment variable:
+
+```bash
+# Use default Devstral model
+docker run -it -v $(pwd):/workspace -e OPENROUTER_API_KEY=your_key zephyr_weather_station
+
+# Use Qwen3 model
+docker run -it -v $(pwd):/workspace \
+  -e OPENROUTER_API_KEY=your_key \
+  -e CLINE_MODEL=qwen \
+  zephyr_weather_station
+```
+
 ### Using a Different Model
 
-Edit `cline/cline_api_config.template.json` to change the model:
+To add or modify model configurations, edit the template files:
 
+**Default (Devstral)**:
+```json
+{
+  "openRouterModelId": "mistralai/devstral-2512:free"
+}
+```
+
+**Qwen3 (Alternative)**:
 ```json
 {
   "openRouterModelId": "qwen/qwen3-235b-a22b:free"
