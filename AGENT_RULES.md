@@ -139,7 +139,7 @@ git log -1 --oneline
 
 ## Cline AI Assistant Setup
 
-This project is configured to work with the Cline AI assistant using OpenRouter API with Qwen 2.5 72B model.
+This project is configured to work with the Cline AI assistant using OpenRouter API with Qwen3 235B model (free tier).
 
 ### Configuration Files
 
@@ -173,7 +173,7 @@ To use a different OpenRouter model, edit `cline/cline_api_config.template.json`
 
 ```json
 {
-  "openRouterModelId": "qwen/qwen-2.5-72b-instruct"
+  "openRouterModelId": "qwen/qwen3-235b-a22b:free"
 }
 ```
 

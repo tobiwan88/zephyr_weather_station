@@ -75,7 +75,7 @@ west build -t run
 
 ## Cline AI Assistant Configuration
 
-The project is pre-configured to use Cline AI assistant with OpenRouter and the Qwen 2.5 72B model.
+The project is pre-configured to use Cline AI assistant with OpenRouter and the Qwen3 235B model (free tier).
 
 ### Configuration Files
 
@@ -96,7 +96,7 @@ Edit `cline/cline_api_config.template.json` to change the model:
 
 ```json
 {
-  "openRouterModelId": "qwen/qwen-2.5-72b-instruct"
+  "openRouterModelId": "qwen/qwen3-235b-a22b:free"
 }
 ```
 
