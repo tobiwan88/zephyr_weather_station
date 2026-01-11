@@ -9,8 +9,8 @@ manifest:
   projects:
     - name: zephyr
       remote: upstream
-      revision: v3.6.0
-      import: true
+      revision: v4.3.0
+      import: true  # Import all modules for now to resolve missing symbols
 
   self:
-    path: app
+    path: zephyr_weather_station

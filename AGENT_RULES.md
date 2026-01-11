@@ -5,12 +5,12 @@
 - Use execute_command with requires_approval=true for potentially impactful operations
 - Follow the tool usage guidelines in the Cline documentation
 - Use task_progress parameter to track implementation progress
-- Always wait for user confirmation after each tool use
 
 ## Command policy
 - Use MCP tool `west(args)` for all Zephyr actions (build/test/sca).
-- Default build: west ["build","-b",BOARD,"-d","build","-p","always","app"]
-- Default tests: west ["twister","-T","tests","-p",PLATFORM] (use native_sim for quick iteration)
+- **Board Target**: Always use `native_sim/native/64` for native simulation development
+- **Build Location**: Execute west build from workspace root: `west build zephyr_weather_station/app -b native_sim/native/64 --pristine`
+- Default tests: west ["twister","-T","tests","-p","native_sim/native/64"] (use native_sim/native/64 for quick iteration)
 - Run static analysis regularly: west ["sca"] (or your repo's sca command)
 - Do not run device commands (flash/debug) unless ALLOW_DEVICE_CMDS=1.
 - Always check west.yml and app/prj.conf for required dependencies before adding new features.

@@ -11,8 +11,8 @@ RUN apt-get update && \
 # Install Cline CLI globally with the correct package name
 RUN npm install -g cline
 
-# Install pyserial
-RUN pip3 install pyserial
+# Install pyserial and common Zephyr dependencies
+RUN pip3 install pyserial jsonschema pykwalify pyyaml
 
 # Create cline directory as root before switching users
 RUN mkdir -p /cline && chown -R zephyr:zephyr /cline
@@ -22,7 +22,9 @@ COPY cline/setup_cline.sh /usr/local/bin/setup_cline.sh
 RUN chmod +x /usr/local/bin/setup_cline.sh
 
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+COPY test_container.sh /usr/local/bin/test_container.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/test_container.sh
 
 # Ensure the zephyr user exists and has proper permissions
 RUN usermod -aG sudo zephyr || true

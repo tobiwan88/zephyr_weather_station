@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/home/zephyr/.venv/bin/python3
 """
 MCP Server for Zephyr West Tool and Git
 Provides guarded west and git command execution with security restrictions.
@@ -12,19 +12,19 @@ from typing import Any, Sequence
 
 class WestMCPServer:
     """MCP Server that exposes guarded west and git tools."""
-    
+
     # Allowed west commands
     ALLOWED_COMMANDS = {"build", "update", "status", "twister"}
-    
+
     # Blocked west commands (for security)
     BLOCKED_COMMANDS = {"flash", "debug", "debugserver", "attach"}
-    
+
     # Allowed git commands
     ALLOWED_GIT_COMMANDS = {"add", "commit", "status", "diff", "log", "show", "checkout"}
-    
+
     # Blocked git commands (for security - prevent dangerous operations)
     BLOCKED_GIT_COMMANDS = {"push", "pull", "fetch", "reset", "rebase", "merge"}
-    
+
     def __init__(self):
         self.tools = [
             {
@@ -58,7 +58,7 @@ class WestMCPServer:
                 }
             }
         ]
-    
+
     def handle_initialize(self, params: dict) -> dict:
         """Handle initialize request."""
         return {
@@ -71,16 +71,16 @@ class WestMCPServer:
                 "version": "1.0.0"
             }
         }
-    
+
     def handle_tools_list(self, params: dict) -> dict:
         """Handle tools/list request."""
         return {"tools": self.tools}
-    
+
     def handle_tools_call(self, params: dict) -> dict:
         """Handle tools/call request."""
         tool_name = params.get("name")
         arguments = params.get("arguments", {})
-        
+
         if tool_name == "west":
             return self.execute_west(arguments.get("args", []))
         elif tool_name == "git":
@@ -95,7 +95,7 @@ class WestMCPServer:
                 ],
                 "isError": True
             }
-    
+
     def execute_west(self, args: list) -> dict:
         """Execute west command with security checks."""
         if not args:
@@ -108,7 +108,7 @@ class WestMCPServer:
                 ],
                 "isError": True
             }
-        
+
         # Check if the first argument is a blocked command
         command = args[0]
         if command in self.BLOCKED_COMMANDS:
@@ -121,7 +121,7 @@ class WestMCPServer:
                 ],
                 "isError": True
             }
-        
+
         # Check if the command is in allowed list (if not a help or version command)
         if command not in self.ALLOWED_COMMANDS and command not in ["--help", "-h", "--version", "-v", "help"]:
             return {
@@ -133,7 +133,7 @@ class WestMCPServer:
                 ],
                 "isError": True
             }
-        
+
         # Execute the west command
         try:
             result = subprocess.run(
@@ -142,11 +142,11 @@ class WestMCPServer:
                 text=True,
                 timeout=300  # 5 minute timeout
             )
-            
+
             output = result.stdout
             if result.stderr:
                 output += "\n" + result.stderr
-            
+
             return {
                 "content": [
                     {
@@ -176,7 +176,7 @@ class WestMCPServer:
                 ],
                 "isError": True
             }
-    
+
     def execute_git(self, args: list) -> dict:
         """Execute git command with security checks."""
         if not args:
@@ -189,7 +189,7 @@ class WestMCPServer:
                 ],
                 "isError": True
             }
-        
+
         # Check if the first argument is a blocked command
         command = args[0]
         if command in self.BLOCKED_GIT_COMMANDS:
@@ -202,7 +202,7 @@ class WestMCPServer:
                 ],
                 "isError": True
             }
-        
+
         # Check if the command is in allowed list (if not a help or version command)
         if command not in self.ALLOWED_GIT_COMMANDS and command not in ["--help", "-h", "--version", "-v", "help"]:
             return {
@@ -214,7 +214,7 @@ class WestMCPServer:
                 ],
                 "isError": True
             }
-        
+
         # Execute the git command
         try:
             result = subprocess.run(
@@ -223,11 +223,11 @@ class WestMCPServer:
                 text=True,
                 timeout=60  # 1 minute timeout for git commands
             )
-            
+
             output = result.stdout
             if result.stderr:
                 output += "\n" + result.stderr
-            
+
             return {
                 "content": [
                     {
@@ -257,12 +257,12 @@ class WestMCPServer:
                 ],
                 "isError": True
             }
-    
+
     def handle_request(self, request: dict) -> dict:
         """Handle incoming JSON-RPC request."""
         method = request.get("method")
         params = request.get("params", {})
-        
+
         if method == "initialize":
             result = self.handle_initialize(params)
         elif method == "tools/list":
@@ -271,20 +271,20 @@ class WestMCPServer:
             result = self.handle_tools_call(params)
         else:
             result = {"error": {"code": -32601, "message": f"Method not found: {method}"}}
-        
+
         return result
-    
+
     def run(self):
         """Run the MCP server (stdio transport)."""
         for line in sys.stdin:
             try:
                 request = json.loads(line)
                 response = self.handle_request(request)
-                
+
                 # Add id to response if present in request
                 if "id" in request:
                     response["id"] = request["id"]
-                
+
                 response["jsonrpc"] = "2.0"
                 print(json.dumps(response), flush=True)
             except json.JSONDecodeError as e:

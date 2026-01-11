@@ -1,0 +1,14 @@
+# SPDX-License-Identifier: Apache-2.0
+
+# Weather Station Application Configuration
+
+mainmenu "Weather Station Configuration"
+
+config WEATHER_STATION_FAKE_SENSOR
+	bool "Use fake sensor for testing"
+	default y
+	help
+	  Enable this option to use a fake sensor instead of real hardware.
+	  This is useful for testing on native_sim/native/64 or other simulator platforms.
+
+source "Kconfig.zephyr"
