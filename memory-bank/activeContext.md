@@ -7,7 +7,8 @@
 1. **Build System Verification**: Ensure reliable compilation and linking
 2. **Core Architecture Validation**: Test ZBUS messaging patterns
 3. **Sensor Simulation Testing**: Validate fake sensor behavior
-4. **Shell Interface Testing**: Verify interactive commands
+4. **Shell Interface Testing**: Verify interactive commands with proper execution flags
+5. **Documentation Update**: Add shell execution instructions
 
 ## 📋 Recent Changes
 
@@ -57,6 +58,17 @@
 - What's the best approach for data persistence?
 - How should we handle multiple physical sensors?
 - What networking protocols should we support?
+
+### Shell Execution Requirements
+**Important**: For interactive shell input on native_sim, the application must be run with the `-uart_stdinout` flag:
+```
+./build/zephyr/zephyr.exe -uart_stdinout
+```
+
+Additional useful flags:
+- `-help`: Show all available command line options
+- `-uart_stdinout`: Enable stdin/stdout for interactive shell
+- Other Zephyr native_sim specific options
 
 ## 💡 Important Patterns and Preferences
 

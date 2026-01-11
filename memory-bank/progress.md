@@ -27,7 +27,7 @@
 ## 🚧 What's Left to Build
 
 ### Phase 2 - Testing and Validation
-- [ ] **Unit Testing**: Implement ztest-based unit tests
+- [x] **Unit Testing**: Implement ztest-based unit tests
 - [ ] **Integration Testing**: Test component interactions
 - [ ] **Shell Testing**: Verify all shell commands work
 - [ ] **Error Testing**: Test edge cases and error conditions
@@ -137,7 +137,7 @@
 | **Logging** | ✅ Working | Proper log levels |
 | **Error Handling** | ✅ Working | Zephyr error codes |
 | **Configuration** | ✅ Working | Kconfig integrated |
-| **Unit Tests** | ⚠️ Pending | Not yet implemented |
+| **Unit Tests** | ✅ Implemented | Comprehensive ztest suite |
 | **Hardware Support** | ⚠️ Pending | Simulation only |
 | **Documentation** | ✅ Partial | Core docs complete |
 
@@ -173,10 +173,22 @@
 ## 🎯 Next Development Steps
 
 ### Immediate (Next Session)
-1. **Test Execution**: Run the built application
-2. **Shell Verification**: Test all commands
-3. **Logging Check**: Verify log output
-4. **Error Testing**: Test edge cases
+1. **Test Execution**: Run the built application with `-uart_stdinout` flag
+2. **Shell Verification**: Test all commands (ws trigger, ws show, ws status)
+3. **Logging Check**: Verify log output and levels
+4. **Error Testing**: Test edge cases and error conditions
+
+### Shell Execution Instructions
+**Important**: To test the shell interactively, run:
+```
+./build/zephyr/zephyr.exe -uart_stdinout
+```
+
+Available commands:
+- `ws trigger` - Request immediate sensor reading
+- `ws show` - Display latest sensor data
+- `ws status` - Show subsystem health and statistics
+- `-help` - Show all available command line options
 
 ### Short-Term (This Week)
 1. **Unit Tests**: Implement basic test cases

@@ -71,6 +71,7 @@ memory-bank/
 ```bash
 west init -l .
 west update
+west zephyr-export
 ```
 
 ### Build for native_sim (64-bit)
@@ -89,6 +90,26 @@ west build -t run
 ```
 
 **Note**: Use `native_sim/native/64` as the board target for proper 64-bit native simulation.
+
+### Interactive Shell Usage
+
+To use the Zephyr shell interactively with input/output support:
+
+```bash
+# Build the application
+west build zephyr_weather_station/app -b native_sim/native/64 --pristine
+
+# Run with shell input/output enabled
+./build/zephyr/zephyr.exe -uart_stdinout
+```
+
+**Available Shell Commands**:
+- `ws trigger` - Request immediate sensor reading
+- `ws show` - Display latest sensor data
+- `ws status` - Show subsystem health and statistics
+- `-help` - Show all available command line options
+
+**Important**: The `-uart_stdinout` flag is required for interactive shell input on native_sim.
 
 ## Docker Setup
 
@@ -160,12 +181,14 @@ source /home/zephyr/.venv/bin/activate
 source zephyr/zephyr-env.sh
 
 # If workspace is already initialized (most common case):
+west zephyr-export
 west build zephyr_weather_station/app -b native_sim/native/64 --pristine
 west build -t run
 
 # Only if starting fresh (workspace not initialized):
 west init -l .
 west update
+west zephyr-export
 west build zephyr_weather_station/app -b native_sim/native/64 --pristine
 west build -t run
 ```

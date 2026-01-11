@@ -28,6 +28,8 @@
 # Environment setup
 source /home/zephyr/.venv/bin/activate
 source /workspace/zephyr/zephyr-env.sh
+cd /workspace
+west zephyr-export
 
 # Build and run
 west build zephyr_weather_station/app -b native_sim/native/64 --pristine
