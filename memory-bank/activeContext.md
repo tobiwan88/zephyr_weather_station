@@ -72,6 +72,22 @@
 - **Memory**: Prefer static allocation over dynamic
 - **Logging**: Use appropriate log levels (INF, ERR, DBG)
 
+### Technical Approach (from VISION.md)
+- **Architecture**: Modular subsystem design following Zephyr patterns
+- **Communication**: Event-driven using zbus for loose coupling
+- **Testing**: Comprehensive unit tests and Twister integration
+- **Platforms**: Primary target native_sim for development, with board support for deployment
+- **Standards**: Follow Zephyr coding guidelines and device tree conventions
+- **AI Integration**: Cline AI agent for automated implementation and validation
+
+### Cline AI Integration Strategy
+- **Automated Implementation**: Use Cline tools for file creation and modification
+- **Pattern-Based Development**: Follow established Zephyr patterns for consistency
+- **Automated Validation**: Use Cline execute_command for build and test validation
+- **Progress Tracking**: Use task_progress parameter for milestone tracking
+- **Documentation Maintenance**: AI-assisted documentation updates
+- **Quality Assurance**: Automated testing and static analysis integration
+
 ## 📈 Learnings and Project Insights
 
 ### Key Learnings

@@ -39,6 +39,24 @@ The rules are designed to guide AI assistants in working effectively with Zephyr
 
 This is a Zephyr T1 project workspace managed by west. The application code is in the `app/` directory.
 
+### Documentation Structure
+
+The project now uses a **Memory Bank** system for comprehensive documentation:
+
+```
+memory-bank/
+├── projectbrief.md        # Project foundation and vision
+├── productContext.md      # Project purpose and architecture
+├── systemPatterns.md      # Technical patterns and implementation
+├── techContext.md         # Development environment and tools
+├── activeContext.md       # Current status and recent changes
+└── progress.md            # Project roadmap and progress tracking
+```
+
+**For Developers**: Start with `README.md` for setup instructions, then refer to the memory bank for detailed architecture and implementation patterns.
+
+**For AI Assistants**: The memory bank provides structured knowledge preservation and context for Cline's memory reset behavior.
+
 ## Build Instructions
 
 ### Prerequisites
