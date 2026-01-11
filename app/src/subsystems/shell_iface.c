@@ -28,7 +28,7 @@ static int cmd_trigger(const struct shell *shell, size_t argc, char **argv)
         .sequence = trigger_sequence++
     };
 
-    int rc = zbus_chan_pub(&ZBUS_CHAN_GET(ws_trigger), &trigger, K_SECONDS(1));
+    int rc = zbus_chan_pub(ZBUS_REF(ws_trigger), &trigger, K_SECONDS(1));
     if (rc != 0) {
         shell_error(shell, "Failed to publish trigger: %d", rc);
         return rc;

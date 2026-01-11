@@ -7,9 +7,12 @@ project(weather_station)
 
 target_sources(app PRIVATE
     src/main.c
-    src/common/messages.h
     src/subsystems/fake_sensor.c
     src/subsystems/sensor_mgr.c
     src/subsystems/display_mgr.c
     src/subsystems/shell_iface.c
+)
+
+target_include_directories(app PRIVATE
+    src/common
 )

@@ -29,7 +29,7 @@ static void sensor_mgr_trigger_handler(const struct zbus_channel *chan)
     };
 
     // Publish sensor data
-    int rc = zbus_chan_pub(&ZBUS_CHAN_GET(ws_sensor_data), &sensor_data, K_SECONDS(2));
+    int rc = zbus_chan_pub(ZBUS_REF(ws_sensor_data), &sensor_data, K_SECONDS(2));
     if (rc != 0) {
         LOG_ERR("Failed to publish sensor data: %d", rc);
     }

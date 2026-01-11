@@ -2,6 +2,39 @@
 
 A test to generate a zephyr weather station firmware just using AI
 
+## AI Assistant Integration
+
+**IMPORTANT for Cline AI Assistant Users**:
+
+### Rule Loading Issues with Mistral Devstral
+If you're using Cline with `openrouter/mistralai/devstral-2512:free`, the model may not automatically read the `.cline_rules/` folder. To ensure proper rule application:
+
+1. **Manual Rule Reference**: Explicitly mention rules in your prompts:
+   ```
+   "Please follow the rules in .cline_rules/basic.md for this Zephyr project"
+   ```
+
+2. **Key Rules Summary**: Always build from workspace root with these commands:
+   ```bash
+   # In container, always run these first:
+   source /home/zephyr/.venv/bin/activate
+   source zephyr/zephyr-env.sh
+
+   # Then build:
+   west build zephyr_weather_station/app -b native_sim/native/64 --pristine
+   ```
+
+3. **Alternative Models**: Consider using Claude or other models that better support rule folders
+
+### Comprehensive Rules Available
+This project includes comprehensive coding rules in the `.cline_rules/` folder. AI assistants should automatically read and apply these rules for:
+- Proper build procedures
+- Zephyr development best practices
+- Container workflow guidelines
+- File operation standards
+
+The rules are designed to guide AI assistants in working effectively with Zephyr RTOS development.
+
 ## Project Structure
 
 This is a Zephyr T1 project workspace managed by west. The application code is in the `app/` directory.
@@ -14,6 +47,8 @@ This is a Zephyr T1 project workspace managed by west. The application code is i
 - Zephyr SDK or Docker environment
 
 ### Initialize the workspace
+
+**Note**: Initialization only needs to be done once when setting up the project. If the workspace is already initialized with all dependencies, you can skip directly to building.
 
 ```bash
 west init -l .
@@ -97,22 +132,43 @@ Cline setup will be skipped, but you can run `setup_cline.sh` manually inside th
 
 ### Inside the Container
 
-Once inside the container, initialize the Zephyr workspace and build:
+Once inside the container, activate the Python virtual environment and set up the Zephyr environment:
 
 ```bash
+# Required: Activate Python virtual environment (west tools are here)
+source /home/zephyr/.venv/bin/activate
+
+# Required: Source Zephyr environment variables
+source zephyr/zephyr-env.sh
+
+# If workspace is already initialized (most common case):
+west build zephyr_weather_station/app -b native_sim/native/64 --pristine
+west build -t run
+
+# Only if starting fresh (workspace not initialized):
 west init -l .
 west update
-cd app
-west build -b native_sim
+west build zephyr_weather_station/app -b native_sim/native/64 --pristine
 west build -t run
 ```
 
+**Important**: The virtual environment activation is required for `west` commands to be available.
+
 ## Cline AI Assistant Configuration
 
-The project is pre-configured to use Cline AI assistant with OpenRouter. Two model options are available:
+The project is pre-configured to use Cline AI assistant with OpenRouter.
+
+### Model Compatibility Notes
+
+- **Mistral Devstral 2512** (`openrouter/mistralai/devstral-2512:free`): May not automatically read `.cline_rules/` folder. Manually reference rules in prompts.
+- **Claude Models**: Better support for automatic rule loading
+- **Qwen Models**: Good rule following capabilities
+
+### Model Options Available
 
 - **Default**: Mistral Devstral 2512 (free tier) - optimized for development tasks
 - **Alternative**: Qwen QwQ 32B (free tier) - advanced reasoning model
+- **Recommended**: Claude models (paid) - best rule adherence
 
 ### Automatic Setup
 

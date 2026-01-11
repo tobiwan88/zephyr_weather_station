@@ -17,19 +17,30 @@ struct fake_sensor_data {
     float humidity_percent;
     float pressure_pa;
     uint32_t sequence;
+    uint32_t prng_state; /* Simple pseudo-random number generator state */
 };
 
 /* Fake sensor device instance */
 static struct fake_sensor_data fake_sensor;
 
-/* Initialize fake sensor with realistic values */
-static int fake_sensor_init(void)
+/* Simple pseudo-random number generator */
+static uint32_t simple_prng(uint32_t *state)
 {
+    *state = *state * 1103515245U + 12345U;
+    return *state;
+}
+
+/* Initialize fake sensor with realistic values */
+static int fake_sensor_init(const struct device *dev)
+{
+    ARG_UNUSED(dev);
+
     /* Set initial values */
     fake_sensor.temperature_c = 22.5f;  /* Room temperature */
     fake_sensor.humidity_percent = 45.0f; /* Comfortable humidity */
     fake_sensor.pressure_pa = 101325.0f; /* Standard atmospheric pressure */
     fake_sensor.sequence = 0;
+    fake_sensor.prng_state = 42; /* Seed for PRNG */
 
     printk("Fake sensor initialized: T=%.1f°C, H=%.1f%%, P=%.1f Pa\n",
            fake_sensor.temperature_c, fake_sensor.humidity_percent,
@@ -42,9 +53,9 @@ static int fake_sensor_init(void)
 static int fake_sensor_sample_fetch(const struct device *dev, enum sensor_channel chan)
 {
     /* Add small random variations to simulate real sensor behavior */
-    float temp_variation = ((float)sys_rand32_get() / (float)SYS_RAND32_MAX) * 2.0f - 1.0f;
-    float humidity_variation = ((float)sys_rand32_get() / (float)SYS_RAND32_MAX) * 5.0f - 2.5f;
-    float pressure_variation = ((float)sys_rand32_get() / (float)SYS_RAND32_MAX) * 200.0f - 100.0f;
+    float temp_variation = ((float)simple_prng(&fake_sensor.prng_state) / (float)4294967295U) * 2.0f - 1.0f;
+    float humidity_variation = ((float)simple_prng(&fake_sensor.prng_state) / (float)4294967295U) * 5.0f - 2.5f;
+    float pressure_variation = ((float)simple_prng(&fake_sensor.prng_state) / (float)4294967295U) * 200.0f - 100.0f;
 
     /* Apply variations with bounds checking */
     fake_sensor.temperature_c = fmaxf(15.0f, fminf(30.0f,
@@ -74,7 +85,7 @@ static int fake_sensor_channel_get(const struct device *dev, enum sensor_channel
         case SENSOR_CHAN_HUMIDITY:
             sensor_value_from_double(val, fake_sensor.humidity_percent);
             break;
-        case SENSOR_CHAN_PRESSURE:
+        case SENSOR_CHAN_PRESS:
             sensor_value_from_double(val, fake_sensor.pressure_pa);
             break;
         default:
@@ -91,8 +102,8 @@ static const struct sensor_driver_api fake_sensor_api = {
 };
 
 /* Fake sensor device definition */
-DEVICE_DT_DEFINE(NULL, fake_sensor_init, NULL, NULL, NULL,
-                POST_KERNEL, CONFIG_SENSOR_INIT_PRIORITY, &fake_sensor_api);
+DEVICE_DEFINE(fake_sensor, "FAKE_SENSOR", fake_sensor_init, NULL, NULL, NULL,
+             POST_KERNEL, CONFIG_SENSOR_INIT_PRIORITY, &fake_sensor_api);
 
 /* Public API to get fake sensor data */
 int fake_sensor_get_readings(float *temperature, float *humidity, float *pressure)

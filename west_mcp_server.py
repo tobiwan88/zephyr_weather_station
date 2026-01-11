@@ -1,4 +1,4 @@
-#!/home/zephyr/.venv/bin/python3
+#!/usr/bin/env python3
 """
 MCP Server for Zephyr West Tool and Git
 Provides guarded west and git command execution with security restrictions.

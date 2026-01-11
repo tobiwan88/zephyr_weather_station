@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "west-server": {
+      "command": "/workspace/zephyr_weather_station/west_mcp_server.py",
+      "args": [],
+      "env": {
+        "ZEPHYR_BASE": "/workspace/zephyr",
+        "PYTHONPATH": "/workspace"
+      }
+    }
+  }
+}
