@@ -37,6 +37,8 @@ west build -t run
 
 ### Building the Docker Image
 
+**Prerequisites**: You need to have the local `zephyr-docker:arm` base image available. This is used instead of the remote version due to compatibility issues.
+
 ```bash
 docker build -t zephyr_weather_station .
 ```
@@ -66,7 +68,7 @@ docker run -it -v $(pwd):/workspace \
 docker run -it -v $(pwd):/workspace zephyr_weather_station
 ```
 
-You'll need to manually configure Cline after starting the container.
+Cline setup will be skipped, but you can run `setup_cline.sh` manually inside the container if needed later.
 
 ### Inside the Container
 
@@ -85,15 +87,18 @@ west build -t run
 The project is pre-configured to use Cline AI assistant with OpenRouter. Two model options are available:
 
 - **Default**: Mistral Devstral 2512 (free tier) - optimized for development tasks
-- **Alternative**: Qwen3 235B (free tier) - larger general-purpose model
+- **Alternative**: Qwen QwQ 32B (free tier) - advanced reasoning model
+
+### Automatic Setup
+
+When you run the container with an `OPENROUTER_API_KEY`, Cline will be automatically configured using the official `cline auth` command. This ensures proper authentication setup and model configuration.
 
 ### Configuration Files
 
-- `cline/cline_api_config.template.json` - Default Devstral template (committed to repo, no secrets)
-- `cline/cline_api_config.template.qwen.json` - Qwen3 template (backup option)
-- `cline/cline_api_config.json` - Active configuration (generated at runtime, never committed)
-- `cline/cline_mcp_settings.json` - MCP server configuration
+- `cline/cline_mcp_settings.json` - MCP server configuration (optional)
 - `cline/setup_cline.sh` - Setup script that runs on container start
+
+The authentication is handled by the Cline CLI itself, which is much more reliable than manually creating configuration files.
 
 ### Getting an OpenRouter API Key
 
