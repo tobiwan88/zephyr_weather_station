@@ -2,7 +2,7 @@
 
 # Weather Station Application Configuration
 
-mainmenu "Weather Station Configuration"
+menu "Weather Station Configuration"
 
 config WEATHER_STATION_FAKE_SENSOR
 	bool "Use fake sensor for testing"
@@ -10,5 +10,15 @@ config WEATHER_STATION_FAKE_SENSOR
 	help
 	  Enable this option to use a fake sensor instead of real hardware.
 	  This is useful for testing on native_sim/native/64 or other simulator platforms.
+
+config WEATHER_STATION_LOG_LEVEL
+	int "Weather Station Log Level"
+	range 0 4
+	default 3
+	help
+	  Set the log level for weather station specific messages.
+	  0 = Off, 1 = Error, 2 = Warning, 3 = Info, 4 = Debug
+
+endmenu
 
 source "Kconfig.zephyr"

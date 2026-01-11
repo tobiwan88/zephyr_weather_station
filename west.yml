@@ -10,7 +10,11 @@ manifest:
     - name: zephyr
       remote: upstream
       revision: v4.3.0
-      import: true  # Import all modules for now to resolve missing symbols
+      import:
+        # Minimal modules for native_sim and console only
+        name-allowlist:
+          - segger       # For RTT console support (optional)
+          - net-tools    # For network simulation tools
 
   self:
     path: zephyr_weather_station
