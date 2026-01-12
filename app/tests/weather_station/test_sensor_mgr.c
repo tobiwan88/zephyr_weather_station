@@ -6,7 +6,7 @@
 #include <zephyr/ztest.h>
 #include <zephyr/zbus/zbus.h>
 #include <zephyr/logging/log.h>
-#include "../src/common/messages.h"
+#include "messages.h"
 
 // Mock variables to track sensor manager behavior
 static int sensor_init_called = 0;

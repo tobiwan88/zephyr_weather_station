@@ -5,7 +5,7 @@
 
 #include <zephyr/ztest.h>
 #include <zephyr/zbus/zbus.h>
-#include "../src/common/messages.h"
+#include "messages.h"
 
 static void test_message_structures(void)
 {

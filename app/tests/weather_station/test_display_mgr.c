@@ -6,8 +6,7 @@
 #include <zephyr/ztest.h>
 #include <zephyr/zbus/zbus.h>
 #include <zephyr/logging/log.h>
-#include <zephyr/logging/log_ctrl.h>
-#include "../src/common/messages.h"
+#include "messages.h"
 
 // Mock variables to track display manager behavior
 static int display_init_called = 0;
