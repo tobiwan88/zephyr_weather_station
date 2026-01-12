@@ -9,8 +9,12 @@ manifest:
   projects:
     - name: zephyr
       remote: upstream
-      revision: v3.6.0
-      import: true
+      revision: v4.3.0
+      import:
+        # Minimal modules for native_sim and console only
+        name-allowlist:
+          - segger       # For RTT console support (optional)
+          - net-tools    # For network simulation tools
 
   self:
-    path: app
+    path: zephyr_weather_station

@@ -1,310 +1,94 @@
-# Agent Rules for Zephyr Weather Station Development
-
-## Overview
-
-This document defines the rules and guidelines for AI agents working on the Zephyr Weather Station project.
-
-## MCP Tools Available
-
-The project provides an MCP (Model Context Protocol) server that exposes two guarded tools for safe command execution:
-
-1. **west** - Zephyr build system commands
-2. **git** - Version control commands
-
-### West Tool Usage
-
-The `west` tool is available for Zephyr-specific operations.
-
-#### Allowed West Commands
-
-The following `west` commands are **ALLOWED** and can be executed freely:
-
-- `west build` - Build the application
-- `west update` - Update dependencies
-- `west status` - Check workspace status  
-- `west twister` - Run test automation
-
-#### Blocked West Commands
-
-The following `west` commands are **BLOCKED** for security reasons:
-
-- `west flash` - Flashing firmware to hardware (requires physical access)
-- `west debug` - Starting debug sessions (requires hardware/emulator)
-- `west debugserver` - Starting debug server
-- `west attach` - Attaching to running processes
-
-**Rationale**: These commands interact with physical hardware or require special privileges that should not be automated without explicit human oversight.
-
-### Git Tool Usage
-
-The `git` tool is available for version control operations, allowing agents to track progress and enable reviewers to see incremental changes.
-
-#### Allowed Git Commands
-
-The following `git` commands are **ALLOWED** and can be executed freely:
-
-- `git add` - Stage files for commit
-- `git commit` - Create commits with meaningful messages
-- `git status` - Check repository status
-- `git diff` - View changes
-- `git log` - View commit history
-- `git show` - Show commit details
-- `git checkout` - Switch branches or restore files
-
-#### Blocked Git Commands
-
-The following `git` commands are **BLOCKED** for security reasons:
-
-- `git push` - Pushing to remote (handled by report_progress tool)
-- `git pull` - Pulling from remote
-- `git fetch` - Fetching from remote
-- `git reset` - Resetting commits (prevents history rewriting)
-- `git rebase` - Rebasing commits (prevents history rewriting)
-- `git merge` - Merging branches
-
-**Rationale**: Remote operations and history-rewriting commands should be handled through approved workflows (like report_progress) to maintain audit trail and prevent accidental data loss.
-
-#### Git Best Practices for Agents
-
-1. **Commit frequently**: Create commits between logical steps to enable easy rollback
-2. **Meaningful commit messages**: Use descriptive messages that explain what changed and why
-   - Good: "Add git tool to MCP server for version control support"
-   - Bad: "Update files" or "Fix bug"
-3. **Stage selectively**: Use `git add <file>` to stage specific files rather than `git add .`
-4. **Check status first**: Always run `git status` before committing to verify what will be committed
-5. **Review diffs**: Use `git diff` to review changes before staging
-6. **Small commits**: Keep commits focused on a single logical change
-
-#### Example Workflow
-
-```bash
-# 1. Check current status
-git status
-
-# 2. Review changes
-git diff path/to/file
-
-# 3. Stage specific files
-git add path/to/file1 path/to/file2
-
-# 4. Create a meaningful commit
-git commit -m "Add feature X: explanation of changes"
-
-# 5. Verify commit
-git log -1 --oneline
-```
-
-## Development Guidelines
-
-### 1. Code Changes and Version Control
-
-- **Use git for progress tracking**: Create commits between logical steps
-- **Write meaningful commit messages**: Explain what changed and why
-  - Include context about the change
-  - Reference issue numbers if applicable
-  - Use imperative mood (e.g., "Add feature" not "Added feature")
-- **Commit frequently**: This allows reviewers to understand the progression of changes
-- **Stage files selectively**: Use `git add <specific-files>` to control what gets committed
-- Always test builds using `west build -b native_sim` before committing
-- Follow Zephyr coding standards and conventions
-- Keep changes minimal and focused
-- Document all configuration changes
-
-### 2. Building
-
-- Use `native_sim` board for local testing
-- Always verify builds complete successfully
-- Check for warnings and address them when possible
-
-### 3. Testing
-
-- Use `west twister` for automated testing when available
-- Verify application runs correctly on `native_sim`
-- Test any new features thoroughly
-
-### 4. Documentation
-
-- Update README.md when adding new features or changing build process
-- Document any new configuration options in comments
-- Keep build instructions up to date
-
-### 5. Security
-
-- **Never commit secrets or credentials**
-  - API keys, tokens, and secrets must NEVER be committed to the repository
-  - Use environment variables for sensitive data
-  - The `.gitignore` is configured to block common secret files
-- Follow secure coding practices
-- Be cautious with external dependencies
-
-## Cline AI Assistant Setup
-
-This project is configured to work with the Cline AI assistant using OpenRouter API with two model options:
-
-- **Default**: Mistral Devstral 2512 (free tier) - optimized for development tasks
-- **Alternative**: Qwen3 235B (free tier) - larger general-purpose model
-
-### Configuration Files
-
-- **cline/cline_api_config.template.json**: Default Devstral template (safe to commit)
-- **cline/cline_api_config.template.qwen.json**: Qwen3 template (backup option)
-- **cline/cline_api_config.json**: Active configuration with API key (NEVER commit, auto-generated)
-- **cline/cline_mcp_settings.json**: MCP server settings
-- **cline/setup_cline.sh**: Automatic setup script with model selection
-
-### Security Model
-
-1. **Template-based configuration**: Template files contain all settings except the API key
-2. **Runtime injection**: API key is provided via `OPENROUTER_API_KEY` environment variable when starting the container
-3. **Auto-generation**: The setup script creates `cline_api_config.json` from the selected template and injects the API key
-4. **Git protection**: `.gitignore` blocks `cline_api_config.json` and other secret files from being committed
-
-### Usage
-
-```bash
-# Start container with default Devstral model
-docker run -it -v $(pwd):/workspace -e OPENROUTER_API_KEY=sk-or-v1-xxx... zephyr_weather_station
-
-# Start container with Qwen3 model
-docker run -it -v $(pwd):/workspace \
-  -e OPENROUTER_API_KEY=sk-or-v1-xxx... \
-  -e CLINE_MODEL=qwen \
-  zephyr_weather_station
-
-# The setup_cline.sh script automatically:
-# 1. Selects model based on CLINE_MODEL environment variable (default: devstral)
-# 2. Checks for OPENROUTER_API_KEY environment variable
-# 3. Creates /cline/cline_api_config.json with the API key injected
-# 4. Copies MCP settings to /cline/cline_mcp_settings.json
-```
-
-### Model Selection
-
-The setup script accepts model selection via:
-- **Environment variable**: `CLINE_MODEL=qwen` or `CLINE_MODEL=devstral`
-- **Script argument**: `setup_cline.sh qwen` or `setup_cline.sh devstral`
-
-### Changing Models
-
-To add or modify model configurations:
-
-**Default Devstral template** (`cline_api_config.template.json`):
-```json
-{
-  "openRouterModelId": "mistralai/devstral-2512:free"
-}
-```
-
-**Qwen3 template** (`cline_api_config.template.qwen.json`):
-```json
-{
-  "openRouterModelId": "qwen/qwen3-235b-a22b:free"
-}
-```
-
-Available models: https://openrouter.ai/models
-
-## Workspace Structure
-
-```
-zephyr_weather_station/
-├── app/                    # Application code (T1 workspace self path)
-│   ├── CMakeLists.txt     # Build configuration
-│   ├── prj.conf           # Project configuration
-│   └── src/
-│       └── main.c         # Main application
-├── west.yml               # West manifest
-├── west_mcp_server.py     # MCP server for guarded west and git access
-├── cline/
-│   ├── cline_api_config.template.json       # Devstral config template (default)
-│   ├── cline_api_config.template.qwen.json  # Qwen3 config template (backup)
-│   ├── cline_mcp_settings.json              # MCP server configuration
-│   └── setup_cline.sh                       # Setup script with model selection
-├── Dockerfile             # Docker development environment
-├── .gitignore             # Excludes secrets and build artifacts
-└── README.md              # Project documentation
-```
-
-**Note**: `cline/cline_api_config.json` is generated at runtime and never committed.
-
-## MCP Server Usage
-
-The `west_mcp_server.py` provides a JSON-RPC server that exposes both `west` and `git` tools through MCP.
-
-### Tool Interfaces
-
-#### West Tool
-
-**Tool Name**: `west`
-
-**Parameters**:
-- `args` (array of strings): Arguments to pass to the west command
-
-**Example Usage**:
-```json
-{
-  "name": "west",
-  "arguments": {
-    "args": ["build", "-b", "native_sim"]
-  }
-}
-```
-
-#### Git Tool
-
-**Tool Name**: `git`
-
-**Parameters**:
-- `args` (array of strings): Arguments to pass to the git command
-
-**Example Usage**:
-```json
-{
-  "name": "git",
-  "arguments": {
-    "args": ["add", "app/src/main.c"]
-  }
-}
-```
-
-```json
-{
-  "name": "git",
-  "arguments": {
-    "args": ["commit", "-m", "Add sensor initialization to main.c"]
-  }
-}
-```
-
-### Error Handling
-
-The server will return appropriate errors for:
-- Blocked commands (west: flash, debug; git: push, pull, reset, etc.)
-- Commands not in allowed list
-- Execution failures
-- Timeouts (5 minutes for west, 1 minute for git)
-
-## Best Practices
-
-1. **Always verify changes**: Run `west build` after code modifications
-2. **Use version control effectively**: 
-   - Commit logical, atomic changes with meaningful messages
-   - Use git to track progress and enable easy rollback
-   - Stage files selectively before committing
-3. **Test thoroughly**: Use `west build -t run` to verify application behavior
-4. **Follow conventions**: Match existing code style and structure
-5. **Document**: Update docs when behavior changes
-6. **Enable reviewers**: Create commits between steps so reviewers can see the progression of changes
-
-## Emergency Procedures
-
-If the workspace gets into a bad state:
-
-1. Check status: `west status`
-2. Update dependencies: `west update`
-3. Clean build: Remove `build/` directory and rebuild
-4. Consult documentation: Check Zephyr docs for command help
-
-## Contact
-
-For questions or issues with the MCP server or agent rules, refer to the project README or open an issue.
+# Agent Rules (Weather Station)
+
+## Cline AI Agent Rules
+- Always use Cline tools for file operations (read_file, write_to_file, replace_in_file)
+- Use execute_command with requires_approval=true for potentially impactful operations
+- Follow the tool usage guidelines in the Cline documentation
+- Use task_progress parameter to track implementation progress
+
+## Command policy
+- Use MCP tool `west(args)` for all Zephyr actions (build/test/sca).
+- **Board Target**: Always use `native_sim/native/64` for native simulation development
+- **Build Location**: Execute west build from workspace root: `west build zephyr_weather_station/app -b native_sim/native/64 --pristine`
+- Default tests: west ["twister","-T","tests","-p","native_sim/native/64"] (use native_sim/native/64 for quick iteration)
+- Run static analysis regularly: west ["sca"] (or your repo's sca command)
+- Do not run device commands (flash/debug) unless ALLOW_DEVICE_CMDS=1.
+- Always check west.yml and app/prj.conf for required dependencies before adding new features.
+
+## Zephyr Development Best Practices
+- Follow Zephyr coding guidelines (snake_case, proper includes, SPDX headers)
+- Use Zephyr APIs consistently:
+  - zbus for inter-subsystem communication
+  - Device Tree for hardware configuration
+  - Kconfig for feature configuration
+  - Logging subsystem for debug output
+- Structure code using Zephyr subsystem patterns:
+  - Clear initialization order
+  - Proper error handling with Zephyr error codes
+  - Thread-safe operations using Zephyr synchronization primitives
+- Always add required Kconfig symbols to prj.conf
+- Use devicetree overlays for board-specific configurations
+
+## Cline Implementation Patterns
+- Use replace_in_file for targeted code changes
+- Use write_to_file for new file creation
+- Always include complete file content when using write_to_file
+- Use search_files for cross-file pattern analysis
+- Use list_code_definition_names for architecture understanding
+- Use browser_action for web-based testing and validation
+
+## Development policy
+- Implement in milestone-sized changes (refer to PLAN.md).
+- Keep diffs small; no broad refactors without explicit need.
+- After any functional change: update docs (VISION/ARCH/PLAN) if relevant.
+- Follow the subsystem architecture defined in Architecture.md
+- Test each milestone thoroughly before proceeding to the next
+
+## Cline Development Workflow
+- Start each session by reading relevant files to understand context
+- Use task_progress to track implementation steps
+- Make incremental changes with frequent validation
+- Use attempt_completion when milestone is reached
+- Always provide clear, technical explanations of changes
+
+## Quality gates
+- Ensure shell commands exist for new features (follow Zephyr shell subsystem patterns).
+- Add/extend unit tests for each feature using Zephyr's testing framework.
+- Ensure twister + sca can be run with a single documented command.
+- Verify native_sim builds and runs without warnings
+- Check memory usage and stack sizes are appropriate
+- Validate zbus message integrity and thread safety
+
+## Cline Quality Assurance
+- Use execute_command to run build and test commands
+- Validate changes with west build and west twister
+- Use search_files to ensure consistent patterns across codebase
+- Use list_code_definition_names to verify architecture compliance
+- Always test changes on native_sim before proceeding
+
+## Code Organization
+- Place subsystem code in src/subsystems/ directory
+- Use include/ directory for public headers
+- Keep tests in tests/ directory with clear naming
+- Follow Zephyr file naming conventions (snake_case.c)
+- Group related functionality in logical modules
+
+## Cline Code Management
+- Use write_to_file for new subsystem creation
+- Use replace_in_file for existing subsystem modifications
+- Use search_files to find related code patterns
+- Use list_files to understand project structure
+- Always maintain proper SPDX headers and copyright notices
+
+## Debugging and Logging
+- Use Zephyr logging subsystem instead of printf for debug output
+- Define appropriate log levels for each subsystem
+- Include meaningful context in log messages
+- Use shell commands for runtime inspection and debugging
+
+## Cline Debugging Patterns
+- Use execute_command to run debug builds with LOG_LEVEL_DBG
+- Use search_files to find logging patterns across subsystems
+- Use replace_in_file to add debug logging when needed
+- Use browser_action for web-based debugging interfaces
+- Always remove debug code before finalizing implementation
